@@ -399,16 +399,19 @@ classdef (CaseInsensitiveProperties=true) DynaProg
             else
                 obj.StateFinal = {StateFinal};
             end
-            if any(cellfun(@(x) (~isnumeric(x) && ~islogical(x)) || (length(x)~=2 && ~isempty(x)), obj.StateFinal))
-                error('DynaProg:invalidStateFinal', 'StateFinal must be a cell array of two-element numeric vectors or empty values.');
+            % Check the contents of each final state set
+            if ~isempty(obj.StateFinal)
+                if any(cellfun(@(x) (~isnumeric(x) && ~islogical(x)) || (length(x)~=2 && ~isempty(x)), obj.StateFinal))
+                    error('DynaProg:invalidStateFinal', 'StateFinal must be a cell array of two-element numeric vectors or empty values.');
+                end
+                if any(cellfun(@(x) ~isempty(x) && x(2) < x(1), obj.StateFinal))
+                    error('DynaProg:wrongOrderStateFinal', 'Each element of StateFinal must contain the lower and upper bound, in this order.');
+                end
+                if any(cellfun(@(x) ~isempty(x) && (isnan(x(1)) || isnan(x(2))), obj.StateFinal))
+                    error('DynaProg:nanStateFinal', 'StateFinal cannot contain NaNs.');
+                end
+                obj.StateFinal = obj.StateFinal(:)';
             end
-            if any(cellfun(@(x) ~isempty(x) && x(2) < x(1), obj.StateFinal))
-                error('DynaProg:wrongOrderStateFinal', 'Each element of StateFinal must contain the lower and upper bound, in this order.');
-            end
-            if any(cellfun(@(x) ~isempty(x) && (isnan(x(1)) || isnan(x(2))), obj.StateFinal))
-                error('DynaProg:nanStateFinal', 'StateFinal cannot contain NaNs.');
-            end
-            obj.StateFinal = obj.StateFinal(:)';
         end
 
         function obj = set.ControlGrid(obj, ControlGrid)

@@ -2,9 +2,10 @@ function obj = create_grids(obj)
 % Create computational grids, initialize terminal value
 % function and level-set function
 
-% checks
-if ~isempty(obj.StateGrid)
-    
+% Run checks
+
+% Check the final state constrains
+if ~isempty(obj.StateFinal)
     if obj.DisplayWarnings
         obj = check_StateFinal(obj);
     end
@@ -13,11 +14,16 @@ if ~isempty(obj.StateGrid)
         error('DynaProg:wrongSizeStateFinal', ['You must specify '...
             'one final condition for each of the state variables.']);
     end
+else
+    obj.StateFinal = cell(1,length(obj.N_SV));
 end
+
+% Check the initial states
 if length(obj.StateInitial) ~= length(obj.StateGrid)
     error('DynaProg:wrongSizeStateInit', ['You must specify one '...
         'initial condition for each of the state variables.']);
 end
+
 % Set the VF initialization method if unspecified
 if strcmp(obj.VFPenalty, 'auto')
     if obj.UseLevelSet
