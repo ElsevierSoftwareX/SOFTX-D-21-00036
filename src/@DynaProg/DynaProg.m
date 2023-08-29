@@ -366,7 +366,8 @@ classdef (CaseInsensitiveProperties=true) DynaProg
                     'vector (if the state is scalar) or a cell array of '...
                     'vectors (if the state is nonscalar).']);
             end
-            
+            obj.StateGrid = obj.StateGrid(:)';
+
             % Shift dimensions. Each state variable becomes a vector in its
             % own dimension.
             for n = 1:length(obj.StateGrid)
@@ -385,6 +386,7 @@ classdef (CaseInsensitiveProperties=true) DynaProg
             if any(cellfun(@(x) (~isnumeric(x) && ~islogical(x)) || ~isscalar(x), obj.StateInitial))
                 error('DynaProg:invalidStateInit', 'StateInitial must be a cell array of scalar values.');
             end
+            obj.StateInitial = obj.StateInitial(:)';
         end
 
         function obj = set.StateFinal(obj, StateFinal)
@@ -406,6 +408,7 @@ classdef (CaseInsensitiveProperties=true) DynaProg
             if any(cellfun(@(x) ~isempty(x) && (isnan(x(1)) || isnan(x(2))), obj.StateFinal))
                 error('DynaProg:nanStateFinal', 'StateFinal cannot contain NaNs.');
             end
+            obj.StateFinal = obj.StateFinal(:)';
         end
 
         function obj = set.ControlGrid(obj, ControlGrid)
@@ -430,6 +433,7 @@ classdef (CaseInsensitiveProperties=true) DynaProg
             if ControlGridErr
                 error('DynaProg:invalidControlGrid', 'ControlGrid must be a vector (if the there is only one control variable) or a cell array of numeric vectors (if there are more).');
             end
+            obj.ControlGrid = obj.ControlGrid(:)';
         end
         
         function N_SV = get.N_SV(obj)
