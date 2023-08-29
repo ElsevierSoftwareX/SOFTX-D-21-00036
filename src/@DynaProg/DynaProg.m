@@ -330,17 +330,21 @@ classdef (CaseInsensitiveProperties=true) DynaProg
         function obj = set.SysNameInt(obj, name)
             obj.SysNameInt = name;
             obj = obj.checkModelFun(name, 'int');
-
         end
+
         function obj = set.SysNameExt(obj, name)
             obj.SysNameExt = name;
             obj = obj.checkModelFun(name, 'ext');
         end
+
         function obj = set.SysName(obj, name)
             obj.SysName = name;
             obj = obj.checkModelFun(name, 'single');
         end
+
         function obj = set.StateGrid(obj, StateGrid)
+            % Check that the state grids are in an acceptable format and
+            % ensure that each state grid is a col vector
             StateGridErr = false;
             if iscell(StateGrid)
                 if any(cellfun(@(x) isnumeric(x) || islogical(x), StateGrid))
@@ -360,14 +364,19 @@ classdef (CaseInsensitiveProperties=true) DynaProg
             if StateGridErr
                 error('DynaProg:invalidStateGrid', ['StateGrid must be a '...
                     'vector (if the state is scalar) or a cell array of '...
-                    'vectors (if the state is a vector).']);
+                    'vectors (if the state is nonscalar).']);
             end
-            % Shift dimensions
+            
+            % Shift dimensions. Each state variable becomes a vector in its
+            % own dimension.
             for n = 1:length(obj.StateGrid)
                 obj.StateGrid{n} = shiftdim(obj.StateGrid{n}, -(n-1));
             end
         end
+
         function obj = set.StateInitial(obj, StateInitial)
+            % Check that the initial state is in an acceptable format and
+            % convert to cell array if needed
             if iscell(StateInitial)
                 obj.StateInitial = StateInitial;
             else
@@ -377,7 +386,10 @@ classdef (CaseInsensitiveProperties=true) DynaProg
                 error('DynaProg:invalidStateInit', 'StateInitial must be a cell array of scalar values.');
             end
         end
+
         function obj = set.StateFinal(obj, StateFinal)
+            % Check that the final state sets are in an acceptable format
+            % and convert to cell array if needed
             if iscell(StateFinal)
                 obj.StateFinal = StateFinal;
             elseif isempty(StateFinal)
@@ -392,10 +404,13 @@ classdef (CaseInsensitiveProperties=true) DynaProg
                 error('DynaProg:wrongOrderStateFinal', 'Each element of StateFinal must contain the lower and upper bound, in this order.');
             end
             if any(cellfun(@(x) ~isempty(x) && (isnan(x(1)) || isnan(x(2))), obj.StateFinal))
-                error('DynaProg:nanStateFinal', 'StateFinal does not accept NaNs.');
+                error('DynaProg:nanStateFinal', 'StateFinal cannot contain NaNs.');
             end
         end
+
         function obj = set.ControlGrid(obj, ControlGrid)
+            % Check that the control grids are in an acceptable format and
+            % ensure that each grid is a col vector
             ControlGridErr = false;
             if iscell(ControlGrid)
                 if all(cellfun(@(x) isnumeric(x) || islogical(x), ControlGrid))
@@ -416,12 +431,15 @@ classdef (CaseInsensitiveProperties=true) DynaProg
                 error('DynaProg:invalidControlGrid', 'ControlGrid must be a vector (if the there is only one control variable) or a cell array of numeric vectors (if there are more).');
             end
         end
+        
         function N_SV = get.N_SV(obj)
             N_SV = cellfun(@(x) length(x), obj.StateGrid);
         end
+        
         function N_CV = get.N_CV(obj)
             N_CV = cellfun(@(x) length(x), obj.ControlGrid);
         end
+        
         function obj = set.ExogenousInput(obj, ExogenousInput)
             if ~iscell(ExogenousInput)
                 if isvector(ExogenousInput)
@@ -438,6 +456,7 @@ classdef (CaseInsensitiveProperties=true) DynaProg
                 end
             end
         end
+
         function useExoInput = get.UseExoInput(obj)
             if isempty(obj.ExogenousInput)
                 useExoInput = false;
@@ -445,6 +464,7 @@ classdef (CaseInsensitiveProperties=true) DynaProg
                 useExoInput = true;
             end
         end
+
         function VFPenFactors = get.VFPenFactors(obj)
             % If unspecified, define based on the state grid bounds
             if isempty(obj.VFPenFactorsProt)
@@ -457,6 +477,7 @@ classdef (CaseInsensitiveProperties=true) DynaProg
                 VFPenFactors = obj.VFPenFactorsProt;
             end
         end
+
         function obj = set.VFPenFactors(obj, VFPenFactors)
             % Validate size
             if length(VFPenFactors) ~= length(obj.N_SV)
@@ -464,6 +485,7 @@ classdef (CaseInsensitiveProperties=true) DynaProg
             end
             obj.VFPenFactorsProt = VFPenFactors;
         end
+
         function stateName = get.StateName(obj)
             % If unspecified (left empty), set StateName to ['x_1', 'x_2', ...]
             if isempty(obj.StateNameProt)
@@ -472,6 +494,7 @@ classdef (CaseInsensitiveProperties=true) DynaProg
                 stateName = obj.StateNameProt;
             end
         end
+
         function obj = set.StateName(obj, stateName)
             % If it is a char array, convert it into a cell array
             if ischar(stateName)
@@ -483,6 +506,7 @@ classdef (CaseInsensitiveProperties=true) DynaProg
             end
             obj.StateNameProt = stateName;
         end
+
         function controlName = get.ControlName(obj)
             % If unspecified (left empty), set ControlName to ['u_1', 'u_2', ...]
             if isempty(obj.ControlNameProt)
@@ -491,6 +515,7 @@ classdef (CaseInsensitiveProperties=true) DynaProg
                 controlName = obj.ControlNameProt;
             end
         end
+
         function obj = set.ControlName(obj, controlName)
             % If it is a char array, convert it into a cell array
             if ischar(controlName)
@@ -502,6 +527,7 @@ classdef (CaseInsensitiveProperties=true) DynaProg
             end
             obj.ControlNameProt = controlName;
         end
+
         function costName = get.CostName(obj)
             % If unspecified (left empty), set ControlName to 'Cumulative
             % cost'
@@ -511,6 +537,7 @@ classdef (CaseInsensitiveProperties=true) DynaProg
                 costName = obj.CostNameProt;
             end
         end
+
         function obj = set.CostName(obj, costName)
             % If unspecified (left empty), set ControlName to 'Cumulative
             % cost'
@@ -520,26 +547,32 @@ classdef (CaseInsensitiveProperties=true) DynaProg
                 obj.CostNameProt = costName;
             end
         end
+
         function display = get.Display(obj)
             display = obj.DisplayProt;
         end
+
         function obj = set.Display(obj, Display)
             obj.DisplayProt = Display;
             obj.DisplayProgressbar = strcmp(Display, 'detailed');
             obj.DisplayWarnings = ismember(obj.Display, {'warn', 'detailed'});
         end
+
         function obj = set.VFInitialization(obj, VFPenalty)
             obj.VFPenalty = VFPenalty;
             warning("Property 'VFInitialization' is deprecated. Use 'VFPenalty' instead.")
         end
+
         function VFPenalty = get.VFInitialization(obj)
             VFPenalty = obj.VFPenalty;
             warning("Property 'VFInitialization' is deprecated. Use 'VFPenalty' instead.")
         end
+
         function obj = set.VFFactors(obj, VFPenFactors)
             obj.VFPenFactors = VFPenFactors;
             warning("Property 'VFFactors' is deprecated. Use 'VFPenFactors' instead.")
         end
+        
         function VFPenFactors = get.VFFactors(obj)
             VFPenFactors = obj.VFPenFactors;
             warning("Property 'VFFactors' is deprecated. Use 'VFPenFactors' instead.")
