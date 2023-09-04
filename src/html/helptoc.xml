@@ -11,6 +11,8 @@
             </tocitem>
             <tocitem target="specify_constraints.html">Specify contraints on the state and control variables
             </tocitem>
+            <tocitem target="terminal_cost.html">Specify a terminal cost
+            </tocitem>
             <tocitem target="handle_exogenous_inputs.html">Handle exogenous inputs
             </tocitem>
             <tocitem target="use_additional_inputs.html">Use additional inputs
@@ -27,9 +29,13 @@
             Examples
             <tocitem target="example_cart.html">Double integrator example
             </tocitem>
+            <tocitem target="example_terminal_cost.html">Double-integrator with custom terminal cost example
+            </tocitem>
             <tocitem target="example_hev.html">Hybrid electric vehicle example
             </tocitem>
             <tocitem target="example_split_hev.html">Hybrid electric vehicle example: split model
+            </tocitem>
+            <tocitem target="example_two_tanks.html">Two tanks example
             </tocitem>
             <tocitem target="example_troubleshooting.html">Hybrid electric vehicle example: troubleshooting the model
             </tocitem>

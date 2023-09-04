@@ -8,7 +8,7 @@
 %% Set up the problem
 clear
 % State variables grids
-SVnames = ["SOC", "TWC Temperature"];
+SVnames = {'SOC', 'TWC Temperature'};
 x1_grid = 0.4:0.001:0.7;
 x2_grid = 200:10:600;
 x_grid = {x1_grid, x2_grid};
@@ -21,7 +21,7 @@ x1_final = [0.599 0.601];
 x2_final = [];
 x_final = {x1_final, x2_final};
 % Control variables grids
-CVnames = ["Gear Number", "Torque split"];
+CVnames = {'Gear Number', 'Torque split'};
 u1_grid = [1 2 3 4 5];
 u2_grid = -1:0.1:1;
 u_grid = {u1_grid, u2_grid};
@@ -41,8 +41,7 @@ Nint = length(time_s);
 
 % Create DynaProg object
 prob = DynaProg(x_grid, x_init, x_final, u_grid, Nint, ...
- @(u, w) hev_ext(u, w, veh, fd, gb, eng, em), @(x, u, w, m) hev_int(x, u, w, m, batt, twc), 'ExogenousInput', w);
-% prob.VFInitialization = 'linear';
+ @(u, w) hev_ext(u, w, veh, fd, gb, eng, em), @(x, u, w, intVar) hev_int(x, u, w, intVar, batt, twc), 'ExogenousInput', w);
 
 %% Solve and visualize results
 % Solve the problem
@@ -62,11 +61,15 @@ noxTailpipeFlwRate = [prob.AddOutputsProfile{2}.nox];
 
 figure
 t = plot(prob);
-nexttile(t, 5)
-plot(prob.Time(1:end-1), fc_grams.*1e-2)
-hold on
-plot(prob.Time(1:end-1), hcTailpipeFlwRate)
-plot(prob.Time(1:end-1), coTailpipeFlwRate)
-plot(prob.Time(1:end-1), noxTailpipeFlwRate)
-legend('Fuel consumption, g/s \cdot 10^{-2}', 'Tailpipe HC, g/s', 'Tailpipe CO, g/s', ...
-    'Tailpipe NOx, g/s', 'FontSize', 10)
+
+% Edit the plot (only if your MATLAB version supports 'tiledlayout')
+if ~verLessThan('matlab','9.6')
+    nexttile(t, 5)
+    plot(prob.Time(1:end-1), fc_grams.*1e-2)
+    hold on
+    plot(prob.Time(1:end-1), hcTailpipeFlwRate)
+    plot(prob.Time(1:end-1), coTailpipeFlwRate)
+    plot(prob.Time(1:end-1), noxTailpipeFlwRate)
+    legend('Fuel consumption, g/s \cdot 10^{-2}', 'Tailpipe HC, g/s', 'Tailpipe CO, g/s', ...
+        'Tailpipe NOx, g/s', 'FontSize', 10)
+end

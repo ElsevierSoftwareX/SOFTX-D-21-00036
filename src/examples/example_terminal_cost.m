@@ -29,6 +29,8 @@ Nint = time_final/dt;
 
 % Create DynaProg object
 prob = DynaProg(x_grid, x_init, x_final, u_grid, Nint, @cart);
+prob.VFPenalty = 'none';
+prob.TerminalCost = @(x) quadraticCost(x, pos_final, velocity_final);
 
 %% Solve and visualize results
 % Solve the problem
@@ -44,3 +46,8 @@ prob.CostName = 'Energy';
 % Plot results
 figure
 plot(prob);
+
+function cost = quadraticCost(x, pos_final, velocity_final)
+    cost = 1e3 * ( x{1} - pos_final ) .^ 2 + ...
+        1e3 * ( x{2} - velocity_final ) .^ 2;
+end
