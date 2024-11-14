@@ -1,6 +1,11 @@
 function obj = forward(obj)
 % Run the optimization algorithm forward phase
 
+if isempty(obj.VF)
+    error('DynaProg:emptyVF', ['The value function is empty. ' ...
+        'You must solve the problem first and store the VF setting StoreValueFunction to True.'])
+end
+
 if obj.SafeMode
     control = obj.ControlCombGrid;
     % Vector dimensions corresponding to cvs
