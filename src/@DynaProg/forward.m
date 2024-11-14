@@ -35,7 +35,7 @@ for k = 1:obj.Nstages
         fprintf('%s%2d %%', ones(1,4)*8, floor((k-1)/obj.Nstages*100));
     end
 
-    % Expand current state to the combined cv grid
+    % If using safe mode, expand current state to the combined cv grid
     if obj.SafeMode
         for n = 1:length(state)
             state_exp{n} = state{n} + zeros(size(obj.ControlCombGrid{1}));
@@ -43,7 +43,7 @@ for k = 1:obj.Nstages
     else
         state_exp = state;
     end
-    % Create intermediate vaiables
+    % Create intermediate variables
     if obj.UseSplitModel
         intVars = obj.IntermediateVars{k};
         unfeasExt = obj.unFeasExt{k};
