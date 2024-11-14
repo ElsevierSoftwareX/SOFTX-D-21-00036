@@ -24,6 +24,9 @@ if length(obj.StateInitial) ~= length(obj.StateGrid)
         'initial condition for each of the state variables.']);
 end
 
+% Test the model
+testModelFun(obj);
+
 % Set the VF initialization method if unspecified
 if strcmp(obj.VFPenalty, 'auto')
     if obj.UseLevelSet
